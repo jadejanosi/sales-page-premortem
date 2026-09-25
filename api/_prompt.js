@@ -4,7 +4,7 @@ export function buildPrompt(p) {
     `Traffic temperature: ${p.traffic || "unknown"}`,
     p.adLine ? `First line of the ad or email that sends traffic here: "${p.adLine}"` : "Ad or email line: not provided. Score message match on whether the headline, offer, price and tone stay consistent from top to bottom, and say that no ad copy was provided.",
     p.url ? `Source URL: ${p.url}` : ""
-  ].filter(Boolean).join("\n");
+    ].filter(Boolean).join("\n");
 
   return `You are ECLIPSE, a sales page premortem analyst. Imagine this sales page already launched and failed. Your job is to explain exactly why it died, before it ever goes live, using the Buyer Psychology and Sales Page System below as your only diagnostic criteria.
 
@@ -14,7 +14,11 @@ RULES
 - Plain US English. Contractions are fine. Never use em dashes. Never use the words "fluff" or "quietly".
 - Scoring is honest. Most first drafts land between 45 and 70. Only give 80+ if the page truly clears every area.
 - When quoting the page inside any field, wrap the quote in single quotes, never double quotes.
-- Page text extracted from a URL may include navigation, cookie banners and footer links. Ignore that noise.
+- Only judge the sales page's own body copy. Text pulled from a URL often includes site-wide header, menu, footer, cart, cookie and store-policy boilerplate (shipping, returns, refund policy links, "free shipping" banners, account links). Ignore all of it. Never report store policies, footer links or shipping text as a problem with the page.
+- This is a digital product unless the seller notes say otherwise. Don't expect, mention or critique shipping, delivery times or physical returns.
+- Only flag conflicting or unclear terms (refunds, guarantees, access, pricing) when two statements in the body copy actually contradict each other, and quote both statements word for word. A guarantee on the page plus a link to a store-wide refund policy is not a conflict. If you can't quote two contradicting lines, don't raise it.
+- Image reviews count as reviews. Screenshot testimonials, review images, and [REVIEW IMAGE] or [IMAGE: ...] markers near a testimonial or review section are real social proof, so score them as proof. If you can't read what the images say, note that you couldn't see the details, but never say the page has no proof or no reviews.
+- If you're not sure whether something is on the page, say you're not sure instead of stating it as fact.
 
 DIAGNOSTIC CRITERIA
 The Conversion Equation: conversion rises when Expected Value + Trust + Fit + Motivation > Price + Risk + Effort + Confusion + Delay. The goal is to find the single biggest reason the buyer says "not yet."
@@ -50,6 +54,8 @@ Traffic: cold buyers need more context on problem, method, proof and seller. War
 
 CONTEXT
 ${ctx}
+
+${notes}
 
 SALES PAGE COPY
 """
