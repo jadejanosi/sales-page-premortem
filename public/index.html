@@ -61,7 +61,7 @@ button,input,textarea{font:inherit;color:inherit}
 .tabs button[aria-selected="true"]{background:var(--violet);color:#fff}
 label.f{display:block;font-weight:700;font-size:.92rem;margin:1rem 0 .4rem}
 .hint{color:var(--muted);font-weight:400}
-textarea,input[type=text],input[type=url]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem}
+textarea,input[type=text],input[type=url]{box-sizing:border-box;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem}
 textarea{min-height:220px;resize:vertical;line-height:1.5}
 .row{display:grid;grid-template-columns:1fr 1.4fr;gap:1rem}
 .seg{display:flex;gap:6px}
@@ -457,7 +457,8 @@ $("#form").addEventListener("submit", async e => {
       const r = await fetch("/api/premortem", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(data.error || "The premortem couldn't finish. Try again.");
-      report = data.report;
+            report = data.report;
+      if (!report || !report.certificate) throw new Error("The premortem couldn't finish. Run it again.");
     }
     render(normalize(report));
   } catch (err){
