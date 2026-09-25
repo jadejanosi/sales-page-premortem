@@ -244,6 +244,9 @@ footer{color:var(--muted);font-size:.85rem;padding:2rem 0 3rem;border-top:1px so
           <input type="text" id="ad" placeholder="Stop building products nobody buys.">
         </details>
 
+        <label class="f" for="notes">Notes for ECLIPSE <span class="hint">(optional)</span></label>
+        <textarea id="notes" style="min-height:96px" maxlength="1500" placeholder="Anything the page can't show on its own. Example: Digital product, no shipping. The testimonials are screenshot images of 14 buyer reviews. The refund policy link in my footer is store-wide."></textarea>
+
         <button class="go" id="go" type="submit">Run the premortem</button>
         <p class="err" id="err" role="alert" hidden></p>
       </form>
@@ -440,7 +443,8 @@ $("#form").addEventListener("submit", async e => {
     url: $("#url").value.trim(),
     price: $("#price").value.trim(),
     traffic,
-    adLine: $("#ad").value.trim()
+    adLine: $("#ad").value.trim(),
+    notes: $("#notes").value.trim()
   };
   if (tab === "text" && words(payload.text) < 120) return showErr("Paste at least 120 words so ECLIPSE has enough to diagnose.");
   if (tab === "url" && !/^https?:\/\/\S+\.\S+/.test(payload.url)) return showErr("Enter the full link, starting with https://");
