@@ -84,13 +84,20 @@ function htmlToCopy(html) {
   const title = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "";
   let body = html
     .replace(/<head[\s\S]*?<\/head>/gi, "")
-    .replace(/<(script|style|noscript|svg|iframe|template)[\s\S]*?<\/\1>/gi, "")
+    .replace(/<(script|style|noscript|svg|iframe|template|nav|footer|aside)[\s\S]*?<\/\1>/gi, "")
+    .replace(/<header[\s\S]*?<\/header>/gi, "")
+    .replace(/<p[^>]*woocommerce-store-notice[\s\S]*?<\/p>/gi, "")
     .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<img([^>]*)>/gi, (_, attrs) => {
+      const alt = (attrs.match(/alt="([^"]*)"/i) || [])[1] || "";
+      const isReview = /review|testimonial|feedback|screenshot|proof|rating/i.test(attrs);
+      if (isReview) return ` [REVIEW IMAGE${alt ? ": " + alt : ""}] `;
+      return alt ? ` [IMAGE: ${alt}] ` : " [IMAGE] ";
+    })
     .replace(/<h([1-4])[^>]*>/gi, (_, n) => `\n\n${"#".repeat(Number(n))} `)
     .replace(/<\/h[1-4]>/gi, "\n")
     .replace(/<button[^>]*>([\s\S]*?)<\/button>/gi, " [BUTTON: $1] ")
     .replace(/<a[^>]*class="[^"]*(btn|button|cta)[^"]*"[^>]*>([\s\S]*?)<\/a>/gi, " [BUTTON: $2] ")
-    .replace(/<img[^>]*alt="([^"]+)"[^>]*>/gi, " [IMAGE: $1] ")
     .replace(/<(li)[^>]*>/gi, "\n- ")
     .replace(/<(br|\/p|\/div|\/section|\/li|\/tr)[^>]*>/gi, "\n")
     .replace(/<[^>]+>/g, " ");
@@ -129,7 +136,8 @@ export default async function handler(req, res) {
       url,
       price: (b.price || "").toString().slice(0, 40),
       traffic: ["cold", "warm", "mixed"].includes(b.traffic) ? b.traffic : "cold",
-      adLine: (b.adLine || "").toString().slice(0, 300)
+      adLine: (b.adLine || "").toString().slice(0, 300),
+      notes: (b.notes || "").toString().slice(0, 1500)
     });
 
     const toolPrompt = prompt.replace(
