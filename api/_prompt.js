@@ -4,7 +4,11 @@ export function buildPrompt(p) {
     `Traffic temperature: ${p.traffic || "unknown"}`,
     p.adLine ? `First line of the ad or email that sends traffic here: "${p.adLine}"` : "Ad or email line: not provided. Score message match on whether the headline, offer, price and tone stay consistent from top to bottom, and say that no ad copy was provided.",
     p.url ? `Source URL: ${p.url}` : ""
-    ].filter(Boolean).join("\n");
+  ].filter(Boolean).join("\n");
+
+  const notes = p.notes
+    ? `SELLER NOTES (context from the page owner. Treat these as true facts about the page and product unless the page copy clearly contradicts them, and never flag something the notes explain.)\n"""\n${p.notes}\n"""`
+    : "SELLER NOTES: none provided.";
 
   return `You are ECLIPSE, a sales page premortem analyst. Imagine this sales page already launched and failed. Your job is to explain exactly why it died, before it ever goes live, using the Buyer Psychology and Sales Page System below as your only diagnostic criteria.
 
