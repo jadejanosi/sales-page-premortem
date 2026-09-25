@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ECLIPSE: Sales Page Premortem</title>
+<meta name="description" content="Find out why your sales page would die before you launch it. Paste your copy or a link and get the cause of death, the exact exit line, and the fixes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F2FF; --surface:#FFFFFF; --surface2:#EFEAFE; --ink:#1C1640; --muted:#5A5480; --line:#DCD4F5;
+  --violet:#6D28D9; --pink:#DB2777; --cyan:#0E7C86; --coral:#E2562D; --amber:#B7791F;
+  --moon:#F5F2FF; --rim:#C9BEF0; --on-accent:#FFFFFF;
+  --in:#0E7C86; --waver:#B7791F; --gone:#E2562D;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12102B; --surface:#1A1740; --surface2:#221E52; --ink:#F3F0FF; --muted:#ABA5D3; --line:#2F2A60;
+    --violet:#8B5CF6; --pink:#FF5C8A; --cyan:#4DE8E0; --coral:#FF7A59; --amber:#FFD166;
+    --moon:#12102B; --rim:#3B3574; --on-accent:#12102B;
+    --in:#4DE8E0; --waver:#FFD166; --gone:#FF7A59; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12102B; --surface:#1A1740; --surface2:#221E52; --ink:#F3F0FF; --muted:#ABA5D3; --line:#2F2A60;
+  --violet:#8B5CF6; --pink:#FF5C8A; --cyan:#4DE8E0; --coral:#FF7A59; --amber:#FFD166;
+  --moon:#12102B; --rim:#3B3574; --on-accent:#12102B;
+  --in:#4DE8E0; --waver:#FFD166; --gone:#FF7A59; color-scheme: dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.6 "Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Be Vietnam Pro","Nunito Sans",system-ui,sans-serif;font-weight:800;line-height:1.1;margin:0}
+p{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--pink);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 1.25rem}
+
+/* brand bar */
+.bar{display:flex;align-items:baseline;gap:.75rem;padding:1.5rem 0 0}
+.mark{font:800 1.35rem/1 "Be Vietnam Pro",sans-serif;letter-spacing:.14em;background:linear-gradient(90deg,var(--coral),var(--pink),var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bar span{color:var(--muted);font-size:.95rem}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:3rem;align-items:start;padding:2.5rem 0 4rem}
+.hero h1{font-size:clamp(2.1rem,4.6vw,3.6rem);letter-spacing:-.02em;max-width:15ch}
+.lede{color:var(--muted);font-size:1.12rem;max-width:52ch;margin-top:1.1rem}
+.sky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 1.5rem);text-align:center}
+.sky svg,.verdict svg{overflow:visible}
+.sky svg{width:100%;max-width:380px;height:auto;display:block;margin:0 auto}
+.status{min-height:3.2em;color:var(--muted);font-weight:600;margin-top:.5rem}
+
+/* form */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.25rem;margin-top:2rem}
+.tabs{display:inline-flex;background:var(--surface2);border-radius:999px;padding:4px;gap:4px}
+.tabs button{border:0;background:transparent;padding:.5rem 1.05rem;border-radius:999px;font-weight:700;cursor:pointer;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--violet);color:#fff}
+label.f{display:block;font-weight:700;font-size:.92rem;margin:1rem 0 .4rem}
+.hint{color:var(--muted);font-weight:400}
+textarea,input[type=text],input[type=url]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem}
+textarea{min-height:220px;resize:vertical;line-height:1.5}
+.row{display:grid;grid-template-columns:1fr 1.4fr;gap:1rem}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:.72rem .5rem;font-weight:700;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{border-color:var(--cyan);color:var(--ink);box-shadow:inset 0 0 0 1px var(--cyan)}
+details{margin-top:1rem}
+summary{cursor:pointer;font-weight:700;color:var(--violet)}
+.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem;margin-top:.35rem}
+.go{margin-top:1.25rem;width:100%;border:0;border-radius:14px;padding:1rem;font:800 1.08rem "Be Vietnam Pro",sans-serif;background:var(--pink);color:#fff;cursor:pointer}
+.go:disabled{opacity:.55;cursor:progress}
+.err{color:var(--coral);font-weight:700;margin-top:.8rem}
+.note{background:var(--surface2);border-radius:12px;padding:.8rem .9rem;color:var(--muted);font-size:.92rem;margin-top:.6rem}
+
+/* report */
+#report{padding:1rem 0 5rem}
+.verdict{display:grid;grid-template-columns:260px 1fr;gap:2.5rem;align-items:center;border-top:1px solid var(--line);padding-top:3rem}
+.verdict svg{width:100%;height:auto}
+.score{font:800 clamp(3.5rem,9vw,6rem)/1 "Be Vietnam Pro",sans-serif;letter-spacing:-.03em}
+.score small{font-size:.35em;color:var(--muted);letter-spacing:0}
+.band{font:800 1.5rem "Be Vietnam Pro",sans-serif;margin-top:.4rem}
+.verdict p{color:var(--muted);margin-top:.5rem;max-width:56ch}
+
+.block{margin-top:4rem}
+.block>h2{font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:-.01em}
+.block>.sub{color:var(--muted);margin-top:.4rem;max-width:62ch}
+
+/* certificate */
+.cert{margin-top:1.5rem;border:2px solid var(--ink);border-radius:4px;padding:6px}
+.cert-in{border:1px solid var(--ink);padding:clamp(1.25rem,3vw,2.25rem)}
+.cert-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;border-bottom:1px solid var(--line);padding-bottom:1rem;flex-wrap:wrap}
+.cert-head h3{font-size:1.4rem;letter-spacing:.06em}
+.cert-head span{color:var(--muted);font-size:.9rem}
+.fields{display:grid;grid-template-columns:180px 1fr;gap:1.1rem 1.5rem;margin-top:1.4rem}
+.fields dt{color:var(--muted);font-weight:700}
+.fields dd{margin:0}
+.cause{font:800 1.35rem/1.25 "Be Vietnam Pro",sans-serif;color:var(--coral)}
+.manner{font-weight:700}
+q.exit,blockquote{display:block;quotes:none;border-left:3px solid var(--coral);padding:.2rem 0 .2rem .9rem;margin:.4rem 0 0;font-style:italic}
+.fields ul{margin:0;padding-left:1.1rem}
+.fields li+li{margin-top:.35rem}
+.sig{margin-top:1.6rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+
+/* last scroll */
+.scroll{list-style:none;margin:1.5rem 0 0;padding:0;position:relative}
+.scroll::before{content:"";position:absolute;left:11px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.beat{position:relative;padding:0 0 1.6rem 2.5rem}
+.beat::before{content:"";position:absolute;left:4px;top:.35rem;width:16px;height:16px;border-radius:50%;background:var(--in);box-shadow:0 0 0 4px var(--bg)}
+.beat.wavering::before{background:var(--waver)}
+.beat.gone::before{background:var(--gone)}
+.beat .sec{font-weight:800;font-family:"Be Vietnam Pro",sans-serif}
+.beat .st{font-size:.82rem;font-weight:700;margin-left:.5rem;color:var(--in)}
+.beat.wavering .st{color:var(--waver)} .beat.gone .st{color:var(--gone)}
+.beat .quote{color:var(--muted);font-style:italic;margin-top:.2rem}
+.beat .thought{margin-top:.35rem;font-size:1.05rem}
+
+/* fixes */
+.fixes{list-style:none;padding:0;margin:1.5rem 0 0;counter-reset:fx}
+.fix{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.4rem;counter-increment:fx}
+.fix+.fix{margin-top:1rem}
+.fix h3{font-size:1.2rem;display:flex;gap:.7rem;align-items:baseline}
+.fix h3::before{content:counter(fx);color:var(--pink)}
+.fix .why{color:var(--muted);margin-top:.35rem}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+.ba div{border-radius:12px;padding:.9rem;background:var(--bg);border:1px solid var(--line)}
+.ba .after{border-color:var(--cyan)}
+.ba b{display:block;font-size:.85rem;margin-bottom:.3rem;color:var(--muted)}
+.ba .after b{color:var(--cyan)}
+.fix .src{font-size:.85rem;color:var(--violet);font-weight:700;margin-top:.8rem;display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap}
+.copy{border:1px solid var(--line);background:transparent;border-radius:999px;padding:.35rem .85rem;font-weight:700;cursor:pointer;font-size:.85rem}
+
+/* scorecard */
+.card{list-style:none;padding:0;margin:1.5rem 0 0}
+.card li{display:grid;grid-template-columns:150px 1fr 64px;gap:1rem;align-items:center;padding:.8rem 0;border-bottom:1px solid var(--line)}
+.card .lbl{font-weight:700}
+.track{height:10px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.fill{height:100%;border-radius:99px;background:var(--cyan);width:0;transition:width .9s cubic-bezier(.2,.7,.2,1)}
+.fill.mid{background:var(--amber)} .fill.low{background:var(--coral)}
+.card .pts{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.card .nt{grid-column:2 / 4;color:var(--muted);font-size:.92rem;margin-top:-.4rem}
+
+/* checks */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem}
+.checks{list-style:none;padding:0;margin:1.2rem 0 0}
+.checks li{padding:.75rem 0;border-bottom:1px solid var(--line)}
+.checks .q{display:flex;justify-content:space-between;gap:1rem;font-weight:700}
+.checks .a{color:var(--muted);font-size:.94rem;margin-top:.15rem}
+.tag{font-size:.8rem;font-weight:800;white-space:nowrap;color:var(--in)}
+.tag.weak{color:var(--waver)} .tag.missing,.tag.fail{color:var(--gone)}
+.obj{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.8rem;margin-top:1.2rem}
+.obj div{border:1px solid var(--line);border-radius:14px;padding:.9rem;background:var(--surface)}
+.obj div.missing{border-color:var(--gone)} .obj div.weak{border-color:var(--waver)}
+.obj p{color:var(--muted);font-size:.92rem;margin-top:.3rem}
+.dl{margin-top:1.2rem}
+.dl article{border-left:3px solid var(--amber);padding:.3rem 0 .3rem 1rem}
+.dl article+article{margin-top:1.2rem}
+.dl .issue{margin-top:.4rem}
+.dl .fx{color:var(--cyan);font-weight:700;margin-top:.3rem}
+.clean{margin-top:1rem;color:var(--in);font-weight:700}
+.actions{display:flex;gap:1rem;flex-wrap:wrap;margin-top:4rem}
+.btn2{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:.85rem 1.3rem;font-weight:800;cursor:pointer}
+.btn2.primary{background:var(--violet);border-color:var(--violet);color:#fff}
+footer{color:var(--muted);font-size:.85rem;padding:2rem 0 3rem;border-top:1px solid var(--line)}
+
+/* eclipse */
+.moon{transition:transform 2.6s cubic-bezier(.3,.1,.2,1)}
+.hunting .moon{animation:hunt 5s ease-in-out infinite alternate}
+@keyframes hunt{from{transform:translateX(120px)}to{transform:translateX(40px)}}
+.corona{transition:opacity 2.6s ease}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .moon,.fill,.corona{transition:none}
+  .hunting .moon{animation:none}
+}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:1.5rem;padding-top:1.5rem}
+  .sky{position:static;order:-1}
+  .sky svg{max-width:220px}
+  .verdict{grid-template-columns:1fr;text-align:center;gap:1rem}
+  .verdict svg{max-width:220px;margin:0 auto}
+  .verdict p{margin-left:auto;margin-right:auto}
+  .two{grid-template-columns:1fr;gap:0}
+  .fields{grid-template-columns:1fr;gap:.3rem}
+  .fields dd{margin-bottom:1rem}
+  .ba{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .card li{grid-template-columns:1fr 56px}
+  .card .track{grid-column:1 / 3;grid-row:2}
+  .card .nt{grid-column:1 / 3;margin-top:0}
+}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar"><div class="mark">ECLIPSE</div><span>Sales page premortem</span></header>
+
+  <main>
+  <section class="hero">
+    <div>
+      <h1>Your sales page hasn't launched yet. Let's find out how it dies.</h1>
+      <p class="lede">Paste your copy or drop a link. ECLIPSE reads it like a skeptical buyer, finds the exact line where they leave, and hands you the fixes before a single dollar of traffic hits it.</p>
+
+      <form class="panel" id="form" novalidate>
+        <div class="tabs" role="tablist" aria-label="Input type">
+          <button type="button" role="tab" id="t-text" aria-selected="true" aria-controls="p-text">Paste copy</button>
+          <button type="button" role="tab" id="t-url" aria-selected="false" aria-controls="p-url">Page URL</button>
+        </div>
+
+        <div id="p-text" role="tabpanel" aria-labelledby="t-text">
+          <label class="f" for="copy">Sales page copy <span class="hint">(headline to final button)</span></label>
+          <textarea id="copy" placeholder="Paste everything: headline, subhead, story, what's inside, bonuses, testimonials, guarantee, FAQ, button text."></textarea>
+          <div class="meta"><span id="wc">0 words</span><span>120 words minimum</span></div>
+        </div>
+
+        <div id="p-url" role="tabpanel" aria-labelledby="t-url" hidden>
+          <label class="f" for="url">Sales page link</label>
+          <input type="url" id="url" placeholder="https://yoursite.com/product/your-offer" inputmode="url" autocomplete="off">
+          <p class="note" id="urlnote">ECLIPSE pulls the live text from the page. Pages that load their copy with JavaScript may not read fully; paste the copy if that happens.</p>
+        </div>
+
+        <div class="row">
+          <div>
+            <label class="f" for="price">Price</label>
+            <input type="text" id="price" placeholder="$27">
+          </div>
+          <div>
+            <span class="f" style="display:block;font-weight:700;font-size:.92rem;margin:1rem 0 .4rem" id="trafficlbl">Who's landing on it?</span>
+            <div class="seg" role="group" aria-labelledby="trafficlbl">
+              <button type="button" data-t="cold" aria-pressed="true">Cold</button>
+              <button type="button" data-t="warm" aria-pressed="false">Warm</button>
+              <button type="button" data-t="mixed" aria-pressed="false">Mixed</button>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Add the ad or email hook that sends traffic here</summary>
+          <label class="f" for="ad">First line of your ad or email <span class="hint">(used to score message match)</span></label>
+          <input type="text" id="ad" placeholder="Stop building products nobody buys.">
+        </details>
+
+        <button class="go" id="go" type="submit">Run the premortem</button>
+        <p class="err" id="err" role="alert" hidden></p>
+      </form>
+    </div>
+
+    <aside class="sky" aria-hidden="true">
+      <div id="heroSky"></div>
+      <p class="status" id="status">Scored against 42 chapters of buyer psychology research.</p>
+    </aside>
+  </section>
+
+  <section id="report" hidden aria-live="polite"></section>
+  </main>
+
+  <footer>ECLIPSE diagnoses copy against the Buyer Psychology and Sales Page System by Jade Janosi. It's a stress test, not a guarantee: validate every fix with real buyer data.</footer>
+</div>
+
+<script>
+function buildPrompt(p) {
+  const ctx = [
+    p.price ? `Price: ${p.price}` : "Price: not given (infer from the page if shown)",
+    `Traffic temperature: ${p.traffic || "unknown"}`,
+    p.adLine ? `First line of the ad or email that sends traffic here: "${p.adLine}"` : "Ad or email line: not provided. Score message match on whether the headline, offer, price and tone stay consistent from top to bottom, and say that no ad copy was provided.",
+    p.url ? `Source URL: ${p.url}` : ""
+  ].filter(Boolean).join("\n");
+
+  return `You are ECLIPSE, a sales page premortem analyst. Imagine this sales page already launched and failed. Your job is to explain exactly why it died, before it ever goes live, using the Buyer Psychology and Sales Page System below as your only diagnostic criteria.
+
+RULES
+- Quote the page's real words (short quotes, under 20 words) as evidence. Never invent testimonials, numbers, guarantees or sections. If something is missing, say it is missing.
+- Be specific and blunt, but constructive. Write like a sharp conversion strategist talking to a creator she respects.
+- Plain US English. Contractions are fine. Never use em dashes. Never use the words "fluff" or "quietly".
+- Scoring is honest. Most first drafts land between 45 and 70. Only give 80+ if the page truly clears every area.
+- Page text extracted from a URL may include navigation, cookie banners and footer links. Ignore that noise.
+
+DIAGNOSTIC CRITERIA
+The Conversion Equation: conversion rises when Expected Value + Trust + Fit + Motivation > Price + Risk + Effort + Confusion + Delay. The goal is to find the single biggest reason the buyer says "not yet."
+
+The Seven Questions every page must answer:
+1. Is this for me? (right person, problem, stage, use case)
+2. Will this work? (mechanism, proof, examples, limits)
+3. Is it worth the money? (value compared with price and cost of staying stuck)
+4. Can I trust you? (specific claims, real proof, clear terms, honest limits)
+5. Why now? (a real reason, not invented pressure)
+6. What happens after I buy? (next steps, access, format, support, effort)
+7. What if I regret it? (clear expectations, fair guarantee)
+
+The 10-Second Test (what a stranger could answer after a 10-second look): What is being sold? Who is it for? What useful result does it help create? What makes it different? What should I do next?
+
+100-Point Scorecard (use these exact keys and max points):
+- clarity (15): offer, audience, result and next step are obvious. Clarity beats cleverness. Headline formula: useful outcome + target or use case + meaningful differentiator.
+- message_match (10): the ad or email promise matches the page; promise, audience, price and tone don't change at the click.
+- desire (10): the outcome is concrete and meaningful. Sell the change, not the feature. Functional, emotional and identity value. Pain names the problem but must move to cause, solution and proof. Fear without efficacy creates avoidance.
+- mechanism (10): a believable cause-and-effect path. Formula: Most [target] fail to [result] because [root cause]. [Product] solves this by [approach], which means [outcome]. A fancy name is not a mechanism.
+- proof (15): each major claim has support. Bigger promises need more proof. Claim ladder: what the product does, then what that helps the buyer do, then the larger outcome. Testimonials should show who, struggle, action, concrete result, time frame, and sit near the claim they support. Specific beats grand. No borrowed authority.
+- fit (10): the right buyer can self-identify. "This is for you if" and "Skip this if" sections with real conditions.
+- value (10): price is easy to judge against a real, plausible reference point; the offer isn't bloated. Every bonus should remove a specific barrier. Certainty beats volume. Mental accounting: what category is the buyer placing this in?
+- risk (8): guarantee (window, conditions, process), access, support and usage terms reduce uncertainty. The FAQ names real fears.
+- friction (7): the page is easy to scan on a phone one screen at a time, CTAs are clear first-person or outcome-led labels (not "Submit" or "Buy Now"), repeated after decision points, and the next step is obvious. Judge only what's visible; checkout itself is usually not shown.
+- ethics (5): no fake scarcity, resetting timers, invented stock counts, shame, inflated loss claims or misleading proof. Daylight test: would the seller be comfortable explaining the tactic to the buyer after purchase? Reactance: copy that attacks autonomy ("if you were serious...") backfires.
+
+Objection families: Outcome doubt, Method doubt, Self-doubt, Seller doubt, Price or value, Timing, Effort ("I'll buy it and never use it").
+
+Research-backed page order: Orient, Build desire, Explain (mechanism and product), Prove, Offer, Price and risk, Objections, Act (clear CTA plus what happens next). Near checkout, get practical: what they get, when, how to access it, what to do first.
+
+Traffic: cold buyers need more context on problem, method, proof and seller. Warm buyers need offer fit and decision details. Low-ticket offers win when the result is narrow, fast to understand and easy to start. High-ticket offers need deeper proof and implementation confidence.
+
+CONTEXT
+${ctx}
+
+SALES PAGE COPY
+"""
+${p.text}
+"""
+
+OUTPUT
+Return ONLY a JSON object, no markdown fences, no commentary, matching this shape:
+{
+  "product": "what this page sells, in under 10 words",
+  "areas": [ {"key":"clarity","label":"Clarity","points":0,"max":15,"note":"one specific sentence"}, ... all 10 keys in scorecard order ],
+  "certificate": {
+    "cause_of_death": "the single biggest reason buyers leave, under 12 words",
+    "cause_detail": "2-3 sentences explaining it with evidence from the page",
+    "manner": "a memorable 2-5 word label, e.g. 'Death by vague promise'",
+    "time_of_death": {"section":"name of the section where most buyers leave","quote":"the exact line on the page where it happens"},
+    "contributing": ["3 to 4 contributing factors, one sentence each"],
+    "prognosis": "one sentence on whether it can be saved and what it hinges on"
+  },
+  "last_scroll": [ {"section":"section name","quote":"short real quote","thought":"the buyer's inner monologue in first person, one or two sentences","state":"in|wavering|gone"} ],
+  "ten_second": [ {"question":"What is being sold?","answer":"what a stranger would actually say, or 'Can't tell'","pass":true} ],
+  "seven_questions": [ {"question":"Is this for me?","status":"answered|weak|missing","evidence":"one sentence"} ],
+  "objections": [ {"family":"Outcome doubt","status":"answered|weak|missing","note":"one sentence"} ],
+  "daylight": [ {"quote":"exact line","issue":"why it fails the daylight test or triggers reactance","fix":"honest rewrite"} ],
+  "resuscitation": [ {"title":"short fix name","why":"one sentence on the buyer psychology","before":"current line or 'Missing'","after":"ready-to-paste rewrite","principle":"guide chapter it comes from, e.g. 'The Unique Mechanism'"} ]
+}
+Requirements: last_scroll has 5 to 8 beats following the page top to bottom, simulating a ${p.traffic === "warm" ? "warm follower" : "cold visitor"} and ending with a "gone" beat at the time of death (unless the page is truly strong). ten_second has all 5 questions. seven_questions has all 7. objections has all 7 families. daylight is an empty array if nothing fails. resuscitation has exactly 3 fixes ranked by impact, highest first.`;
+}
+
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- eclipse geometry ---------- */
+const R = 110;
+function eclipseSVG(id){
+  return `<svg viewBox="0 0 400 400" role="img" aria-label="Eclipse graphic">
+  <defs>
+    <radialGradient id="${id}-sun" cx="45%" cy="40%" r="70%">
+      <stop offset="0" stop-color="#FFE8A3"/><stop offset=".45" stop-color="#FFD166"/>
+      <stop offset=".8" stop-color="#FF7A59"/><stop offset="1" stop-color="#FF5C8A"/>
+    </radialGradient>
+    <radialGradient id="${id}-glow" cx="50%" cy="50%" r="50%">
+      <stop offset=".55" stop-color="#FF5C8A" stop-opacity=".55"/><stop offset=".75" stop-color="#8B5CF6" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#4DE8E0" stop-opacity="0"/>
+    </radialGradient>
+      </defs>
+  <g>
+    <circle class="corona" cx="200" cy="200" r="190" fill="url(#${id}-glow)"/>
+    <circle cx="200" cy="200" r="${R}" fill="url(#${id}-sun)"/>
+    <circle class="moon" cx="200" cy="200" r="${R+1}" fill="var(--moon)" stroke="var(--rim)" stroke-width="1.5" style="transform:translateX(120px)"/>
+  </g></svg>`;
+}
+// fraction of sun covered by equal-radius moon at center distance d (in radii)
+const covered = d => d >= 2 ? 0 : (2*Math.acos(d/2) - (d/2)*Math.sqrt(4 - d*d)) / Math.PI;
+function offsetFor(fraction){
+  let lo = 0, hi = 2;
+  for (let i = 0; i < 40; i++){ const mid = (lo+hi)/2; covered(mid) > fraction ? lo = mid : hi = mid; }
+  return ((lo+hi)/2) * R;
+}
+$("#heroSky").innerHTML = eclipseSVG("hero");
+
+/* ---------- engine: Claude runtime in preview, /api/premortem when deployed ---------- */
+let sampleFn = null;
+const enginePromise = (async () => {
+  if (window.claude && typeof window.claude.use === "function"){
+    try { sampleFn = await window.claude.use("sample"); } catch { sampleFn = null; }
+  }
+  const mode = sampleFn ? "claude" : "api";
+  if (mode === "claude"){
+    $("#urlnote").textContent = "Link analysis runs in the deployed version of ECLIPSE. In this preview, switch to Paste copy.";
+  }
+  return mode;
+})();
+
+/* ---------- form state ---------- */
+let tab = "text", traffic = "cold";
+function setTab(t){
+  tab = t;
+  $("#t-text").setAttribute("aria-selected", t === "text");
+  $("#t-url").setAttribute("aria-selected", t === "url");
+  $("#p-text").hidden = t !== "text";
+  $("#p-url").hidden = t !== "url";
+}
+$("#t-text").onclick = () => setTab("text");
+$("#t-url").onclick = () => setTab("url");
+document.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
+  traffic = b.dataset.t;
+  document.querySelectorAll(".seg button").forEach(x => x.setAttribute("aria-pressed", x === b));
+});
+const words = s => s.split(/\s+/).filter(Boolean).length;
+$("#copy").addEventListener("input", e => { const n = words(e.target.value); $("#wc").textContent = `${n.toLocaleString()} word${n === 1 ? "" : "s"}`; });
+
+const lines = [
+  "Reading your headline like a stranger would.",
+  "Looking for the reason to believe.",
+  "Checking every claim for proof.",
+  "Asking what happens after the click.",
+  "Hunting for fake urgency.",
+  "Scrolling on a phone with one thumb.",
+  "Finding the line where the buyer leaves.",
+  "Writing the fixes."
+];
+let lineTimer;
+function busy(on){
+  const sky = $("#heroSky");
+  $("#go").disabled = on;
+  $("#go").textContent = on ? "Running the premortem..." : "Run the premortem";
+  sky.classList.toggle("hunting", on);
+  clearInterval(lineTimer);
+  if (on){
+    let i = 0; $("#status").textContent = lines[0];
+    lineTimer = setInterval(() => { i = (i + 1) % lines.length; $("#status").textContent = lines[i]; }, 3800);
+  } else {
+    $("#status").textContent = "Scored against 42 chapters of buyer psychology research.";
+  }
+}
+function showErr(m){ const e = $("#err"); e.textContent = m; e.hidden = !m; }
+
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault(); showErr("");
+  const payload = {
+    mode: tab,
+    text: $("#copy").value.trim(),
+    url: $("#url").value.trim(),
+    price: $("#price").value.trim(),
+    traffic,
+    adLine: $("#ad").value.trim()
+  };
+  if (tab === "text" && words(payload.text) < 120) return showErr("Paste at least 120 words so ECLIPSE has enough to diagnose.");
+  if (tab === "url" && !/^https?:\/\/\S+\.\S+/.test(payload.url)) return showErr("Enter the full link, starting with https://");
+
+  const engine = await enginePromise;
+  if (engine === "claude" && tab === "url") return showErr("Link analysis runs in the deployed version. Switch to Paste copy for this preview.");
+
+  busy(true);
+  try {
+    let report;
+    if (engine === "claude"){
+      report = await sampleFn.json(buildPrompt({ ...payload, url: "" }), { modelTier: "complex" });
+    } else {
+      const r = await fetch("/api/premortem", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || "The premortem couldn't finish. Try again.");
+      report = data.report;
+    }
+    render(normalize(report));
+  } catch (err){
+    const code = err && err.code;
+    showErr(code === "not_granted" ? "ECLIPSE needs permission to run the analysis. Allow it when prompted, then run the premortem again."
+      : code === "rate_limited" ? "Too many runs in a short window. Wait a minute, then try again."
+      : (err && err.message) || "The premortem couldn't finish. Try again.");
+  } finally { busy(false); }
+});
+
+/* ---------- report ---------- */
+const AREAS = [["clarity","Clarity",15],["message_match","Message match",10],["desire","Desire",10],["mechanism","Mechanism",10],["proof","Proof",15],["fit","Fit",10],["value","Value",10],["risk","Risk",8],["friction","Friction",7],["ethics","Ethics",5]];
+function normalize(r){
+  r = r || {};
+  const byKey = Object.fromEntries((r.areas || []).map(a => [a.key, a]));
+  r.areas = AREAS.map(([k, l, m]) => {
+    const a = byKey[k] || {};
+    return { key: k, label: l, max: m, points: Math.max(0, Math.min(m, Math.round(Number(a.points) || 0))), note: a.note || "" };
+  });
+  r.total = r.areas.reduce((s, a) => s + a.points, 0);
+  r.certificate = r.certificate || {};
+  r.certificate.time_of_death = r.certificate.time_of_death || {};
+  for (const k of ["last_scroll","ten_second","seven_questions","objections","daylight","resuscitation"]) r[k] = Array.isArray(r[k]) ? r[k] : [];
+  r.certificate.contributing = Array.isArray(r.certificate.contributing) ? r.certificate.contributing : [];
+  return r;
+}
+function band(t){
+  if (t >= 80) return ["Cleared for launch", "It clears the bar. Send traffic, then let real buyer data tell you what to test next."];
+  if (t >= 65) return ["Stable, not ready to scale", "It won't flatline, but it will bleed conversions. Fix the top three before you pay for traffic."];
+  if (t >= 45) return ["Critical condition", "Buyers are leaving before the offer gets a fair hearing. Fix the cause of death first."];
+  return ["Dead on arrival", "Too many questions go unanswered. Rebuild around the fixes below before launch."];
+}
+const statusTag = s => ({ answered: ["Answered",""], weak: ["Weak","weak"], missing: ["Missing","missing"] }[s] || ["Weak","weak"]);
+const stateLabel = s => ({ in: "Still reading", wavering: "Wavering", gone: "Gone" }[s] || "Still reading");
+
+let lastReport = null;
+function render(r){
+  lastReport = r;
+  const [bandName, bandText] = band(r.total);
+  const c = r.certificate, tod = c.time_of_death;
+  const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+  const html = `
+  <div class="verdict">
+    <div id="reportSky">${eclipseSVG("rep")}</div>
+    <div>
+      <div class="score" aria-label="Survival odds ${r.total} out of 100">${r.total}<small>/100 survival odds</small></div>
+      <div class="band">${esc(bandName)}</div>
+      <p>${esc(bandText)} ${r.product ? `Diagnosed: ${esc(r.product)}.` : ""} The eclipse shows how much of your page's pull is blocked before a buyer reaches the button. Aim for 80+ before scaling traffic.</p>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>The premortem certificate</h2>
+    <div class="cert"><div class="cert-in">
+      <div class="cert-head"><h3>CERTIFICATE OF PREMORTEM</h3><span>Examined ${esc(today)}</span></div>
+      <dl class="fields">
+        <dt>Cause of death</dt><dd><div class="cause">${esc(c.cause_of_death)}</div><p style="margin-top:.5rem">${esc(c.cause_detail)}</p></dd>
+        <dt>Manner</dt><dd class="manner">${esc(c.manner)}</dd>
+        <dt>Time of death</dt><dd><strong>${esc(tod.section)}</strong>${tod.quote ? `<q class="exit">${esc(tod.quote)}</q>` : ""}</dd>
+        <dt>Contributing factors</dt><dd><ul>${c.contributing.map(x => `<li>${esc(x)}</li>`).join("")}</ul></dd>
+        <dt>Prognosis</dt><dd>${esc(c.prognosis)}</dd>
+      </dl>
+      <div class="sig"><span>Examined by ECLIPSE</span><span>Survival odds ${r.total}/100</span></div>
+    </div></div>
+  </div>
+
+  <div class="block">
+    <h2>The last scroll</h2>
+    <p class="sub">A ${traffic === "warm" ? "warm follower" : traffic === "mixed" ? "typical visitor" : "cold visitor"} reading your page top to bottom. Watch where the doubt starts.</p>
+    <ol class="scroll">${r.last_scroll.map(b => `
+      <li class="beat ${esc(b.state)}">
+        <div><span class="sec">${esc(b.section)}</span><span class="st">${stateLabel(b.state)}</span></div>
+        ${b.quote ? `<div class="quote">"${esc(b.quote)}"</div>` : ""}
+        <div class="thought">${esc(b.thought)}</div>
+      </li>`).join("")}</ol>
+  </div>
+
+  <div class="block">
+    <h2>Resuscitation plan</h2>
+    <p class="sub">Three fixes, ranked by how many buyers they bring back. Start with the first.</p>
+    <ol class="fixes">${r.resuscitation.slice(0,3).map((f,i) => `
+      <li class="fix">
+        <h3>${esc(f.title)}</h3>
+        <p class="why">${esc(f.why)}</p>
+        <div class="ba">
+          <div><b>Now</b>${esc(f.before)}</div>
+          <div class="after"><b>Revived</b><span id="after-${i}">${esc(f.after)}</span></div>
+        </div>
+        <div class="src"><span>From the guide: ${esc(f.principle)}</span><button type="button" class="copy" data-copy="${i}">Copy rewrite</button></div>
+      </li>`).join("")}</ol>
+  </div>
+
+  <div class="block">
+    <h2>The 100-point scorecard</h2>
+    <ul class="card">${r.areas.map(a => {
+      const pct = a.points / a.max, cls = pct >= .75 ? "" : pct >= .5 ? "mid" : "low";
+      return `<li><span class="lbl">${a.label}</span><div class="track"><div class="fill ${cls}" data-w="${Math.round(pct*100)}"></div></div><span class="pts">${a.points}/${a.max}</span>${a.note ? `<p class="nt">${esc(a.note)}</p>` : ""}</li>`;
+    }).join("")}</ul>
+  </div>
+
+  <div class="block two">
+    <div>
+      <h2>The 10-second test</h2>
+      <p class="sub">What a stranger would say after one quick look.</p>
+      <ul class="checks">${r.ten_second.map(t => `<li><div class="q"><span>${esc(t.question)}</span><span class="tag ${t.pass ? "" : "fail"}">${t.pass ? "Clear" : "Unclear"}</span></div><p class="a">${esc(t.answer)}</p></li>`).join("")}</ul>
+    </div>
+    <div>
+      <h2>The seven questions</h2>
+      <p class="sub">What every buyer needs answered before they pay.</p>
+      <ul class="checks">${r.seven_questions.map(q => { const [l,c2] = statusTag(q.status); return `<li><div class="q"><span>${esc(q.question)}</span><span class="tag ${c2}">${l}</span></div><p class="a">${esc(q.evidence)}</p></li>`; }).join("")}</ul>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>Objection autopsy</h2>
+    <p class="sub">Every "not yet" belongs to one of these families. Red means the page never answers it.</p>
+    <div class="obj">${r.objections.map(o => { const [l,c2] = statusTag(o.status); return `<div class="${c2}"><div class="q" style="display:flex;justify-content:space-between;gap:.5rem;font-weight:800"><span>${esc(o.family)}</span><span class="tag ${c2}">${l}</span></div><p>${esc(o.note)}</p></div>`; }).join("")}</div>
+  </div>
+
+  <div class="block">
+    <h2>The daylight test</h2>
+    <p class="sub">Would you be comfortable explaining this tactic to a buyer after they paid?</p>
+    ${r.daylight.length ? `<div class="dl">${r.daylight.map(d => `<article><blockquote>${esc(d.quote)}</blockquote><p class="issue">${esc(d.issue)}</p><p class="fx">Try: ${esc(d.fix)}</p></article>`).join("")}</div>`
+      : `<p class="clean">Nothing on this page fails the daylight test.</p>`}
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn2 primary" id="copyAll">Copy full report</button>
+    <button type="button" class="btn2" id="again">Run another page</button>
+  </div>`;
+
+  const rep = $("#report");
+  rep.innerHTML = html; rep.hidden = false;
+  rep.scrollIntoView({ block: "start" });
+
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const moon = rep.querySelector(".moon"), corona = rep.querySelector(".corona");
+  const target = offsetFor((100 - r.total) / 100);
+  setTimeout(() => {
+    moon.style.transform = `translateX(${target}px)`;
+    corona.style.opacity = String(0.35 + 0.65 * (r.total / 100));
+    rep.querySelectorAll(".fill").forEach(f => f.style.width = f.dataset.w + "%");
+  }, reduce ? 0 : 350);
+
+  rep.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(r.resuscitation[b.dataset.copy].after, b, "Copy rewrite"));
+  $("#copyAll").onclick = e => copyText(toText(r), e.currentTarget, "Copy full report");
+  $("#again").onclick = () => { rep.hidden = true; window.scrollTo({ top: 0 }); $("#copy").focus(); };
+}
+
+async function copyText(t, btn, label){
+  try { await navigator.clipboard.writeText(t); }
+  catch { const ta = document.createElement("textarea"); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch {} ta.remove(); }
+  btn.textContent = "Copied"; setTimeout(() => btn.textContent = label, 1600);
+}
+
+function toText(r){
+  const c = r.certificate;
+  const L = [];
+  L.push(`ECLIPSE SALES PAGE PREMORTEM`, `Survival odds: ${r.total}/100 (${band(r.total)[0]})`, ``);
+  L.push(`CAUSE OF DEATH: ${c.cause_of_death}`, c.cause_detail, `Manner: ${c.manner}`, `Time of death: ${c.time_of_death.section}${c.time_of_death.quote ? ` ("${c.time_of_death.quote}")` : ""}`);
+  L.push(`Contributing factors:`, ...c.contributing.map(x => `- ${x}`), `Prognosis: ${c.prognosis}`, ``);
+  L.push(`RESUSCITATION PLAN`);
+  r.resuscitation.slice(0,3).forEach((f,i) => L.push(`${i+1}. ${f.title}`, `   Why: ${f.why}`, `   Now: ${f.before}`, `   Revived: ${f.after}`, `   Principle: ${f.principle}`));
+  L.push(``, `SCORECARD`, ...r.areas.map(a => `- ${a.label}: ${a.points}/${a.max}. ${a.note}`));
+  L.push(``, `THE LAST SCROLL`, ...r.last_scroll.map(b => `- ${b.section} [${stateLabel(b.state)}]: ${b.thought}`));
+  L.push(``, `SEVEN QUESTIONS`, ...r.seven_questions.map(q => `- ${q.question} ${statusTag(q.status)[0]}. ${q.evidence}`));
+  L.push(``, `OBJECTIONS`, ...r.objections.map(o => `- ${o.family}: ${statusTag(o.status)[0]}. ${o.note}`));
+  if (r.daylight.length) L.push(``, `DAYLIGHT TEST`, ...r.daylight.map(d => `- "${d.quote}" ${d.issue} Try: ${d.fix}`));
+  return L.join("\n");
+}
+</script>
+</body>
+</html>
