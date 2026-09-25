@@ -5,6 +5,55 @@ import net from "node:net";
 import { buildPrompt } from "./_prompt.js";
 
 const MODEL = "claude-sonnet-5";
+export const maxDuration = 120;
+
+const str = { type: "string" };
+const status = { type: "string", enum: ["answered", "weak", "missing"] };
+const REPORT_TOOL = {
+  name: "submit_report",
+  description: "Submit the finished sales page premortem report.",
+  input_schema: {
+    type: "object",
+    required: ["product", "areas", "certificate", "last_scroll", "ten_second", "seven_questions", "objections", "daylight", "resuscitation"],
+    properties: {
+      product: str,
+      areas: { type: "array", items: { type: "object", required: ["key", "points", "note"], properties: {
+        key: { type: "string", enum: ["clarity", "message_match", "desire", "mechanism", "proof", "fit", "value", "risk", "friction", "ethics"] },
+        label: str, points: { type: "number" }, max: { type: "number" }, note: str } } },
+      certificate: { type: "object", required: ["cause_of_death", "cause_detail", "manner", "time_of_death", "contributing", "prognosis"], properties: {
+        cause_of_death: str, cause_detail: str, manner: str,
+        time_of_death: { type: "object", properties: { section: str, quote: str } },
+        contributing: { type: "array", items: str }, prognosis: str } },
+      last_scroll: { type: "array", items: { type: "object", properties: {
+        section: str, quote: str, thought: str, state: { type: "string", enum: ["in", "wavering", "gone"] } } } },
+      ten_second: { type: "array", items: { type: "object", properties: { question: str, answer: str, pass: { type: "boolean" } } } },
+      seven_questions: { type: "array", items: { type: "object", properties: { question: str, status, evidence: str } } },
+      objections: { type: "array", items: { type: "object", properties: { family: str, status, note: str } } },
+      daylight: { type: "array", items: { type: "object", properties: { quote: str, issue: str, fix: str } } },
+      resuscitation: { type: "array", items: { type: "object", properties: { title: str, why: str, before: str, after: str, principle: str } } }
+    }
+  }
+};
+
+async function runAnalysis(prompt) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 12000,
+      tools: [REPORT_TOOL],
+      tool_choice: { type: "tool", name: "submit_report" },
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  const data = await r.json();
+  if (!r.ok) throw Object.assign(new Error(data?.error?.message || "The analysis service is unavailable. Try again in a minute."), { fatal: true });
+  if (data.stop_reason === "max_tokens") throw new Error("The report ran too long.");
+  const call = (data.content || []).find(c => c.type === "tool_use" && c.name === "submit_report");
+  if (!call || typeof call.input !== "object") throw new Error("The report came back incomplete.");
+  return call.input;
+}
 const MAX_CHARS = 60000;
 
 function isPrivateIp(ip) {
@@ -83,18 +132,16 @@ export default async function handler(req, res) {
       adLine: (b.adLine || "").toString().slice(0, 300)
     });
 
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 8000, messages: [{ role: "user", content: prompt }] })
-    });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data?.error?.message || "The analysis service is unavailable. Try again in a minute.");
-    const raw = data.content.filter(c => c.type === "text").map(c => c.text).join("");
-    const clean = raw.replace(/```json|```/g, "").trim();
-    const report = JSON.parse(clean.slice(clean.indexOf("{"), clean.lastIndexOf("}") + 1));
+    const toolPrompt = prompt.replace(
+      "Return ONLY a JSON object, no markdown fences, no commentary, matching this shape:",
+      "Submit the report by calling the submit_report tool. Its fields follow this shape:"
+    );
+    let report;
+    try { report = await runAnalysis(toolPrompt); }
+    catch (e) { if (e.fatal) throw e; report = await runAnalysis(toolPrompt); } // one retry
     return res.status(200).json({ report, words });
   } catch (e) {
-    return res.status(500).json({ error: e.message || "Something broke during the premortem. Try again." });
+    console.error("premortem error:", e);
+    return res.status(500).json({ error: "The premortem couldn't finish. Run it again; if it keeps failing, paste the copy instead of the link." });
   }
 }
